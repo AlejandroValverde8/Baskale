@@ -1,19 +1,18 @@
 <template>
   <div id="app">
-    <div class="container">
-     <Menu />
-    <router-view/>
-
+    <Menu />
+    <div class="container my-4">
+      <router-view />
     </div>
   </div>
 </template>
 <script>
-  import Menu from "./views/Header";
-  export default {
-    components:{
-      Menu
-    }
-  }
+import Menu from "./views/Header";
+export default {
+  components: {
+    Menu,
+  },
+};
 </script>
 <style>
 @import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
