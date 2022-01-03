@@ -3,7 +3,7 @@ import { getDatabase } from "firebase/database";
 
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBMXVbyqGZmFZnVjSub3oHAqrPH_Pmw5gA",
+    apiKey: process.env.VUE_APP_FIREBASE_API,
     authDomain: "baskale-7d540.firebaseapp.com",
     projectId: "baskale-7d540",
     storageBucket: "baskale-7d540.appspot.com",
