@@ -71,7 +71,8 @@ export default {
         descripcion: '',
         categoria: '',
         precio: '',
-        stock: ''
+        stock: '',
+        idAdmin: ''
       },
 
       imagenMiniatura: '',

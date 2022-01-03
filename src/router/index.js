@@ -6,6 +6,7 @@ import Usuario from '../views/Usuario.vue'
 import Login from '../views/Login.vue'
 import Signup from '../views/Signup.vue'
 import Productos from '../views/Productos/Listado.vue'
+import AdminProductos from '../views/AdminProds.vue'
 import Detalle from '../views/Productos/Detalle.vue'
 import Addprod from '../views/Addprod.vue'
 import axios from 'axios'
@@ -23,6 +24,7 @@ const routes = [
   { path: '/login', name: 'login', component: Login },
   { path: '/signup', name: 'signup', component: Signup },
   { path: '/productos', name: 'productos', component: Productos },
+  { path: '/adminprods', name: 'AdminProds', component: AdminProductos },
   { path: '/detalle/:id', name: 'detalle', component: Detalle },
   { path: '/addprod', name: 'addprod', component: Addprod }
 ]

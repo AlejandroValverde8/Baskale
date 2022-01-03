@@ -27,10 +27,7 @@
               const auth = atuen.getAuth();
               atuen.signInWithEmailAndPassword(auth, this.email, this.password).then((userCredential) => {
                 //console.log(userCredential);
-                
-
                 //Buscar usuario actual en la bbdd
-
                 this.readUser(userCredential.user.uid);
                 this.$router.push('/usuario/{{this.email}}');
               }, (error)=> {
@@ -51,7 +48,10 @@
                 onValue(usuario, (snapshot) => {
                     const user = snapshot.val();
                     console.log(user);
+                    localStorage.setItem('adminName', user.nombre);
                     localStorage.setItem('admin', user.admin);
+                    localStorage.setItem('adminuid', userId);
+                    console.log(localStorage.getItem('adminuid'), localStorage.getItem('adminName'), localStorage.getItem('admin'));
                  });
             },
         },
