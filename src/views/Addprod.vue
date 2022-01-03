@@ -5,7 +5,7 @@
                     <label for="nombre">Nombre del Producto</label>
                     <input type="text" class="form-control" id="nombre" placeholder="Escriba el nombre del producto" v-model="producto.nombre"><br/>
                 </div>
-            
+
             <div class="form-group">
                     <label for="descripcion">Descripción del Producto</label>
                     <textarea class="form-control" id="desccripcion" rows="3" placeholder="Escriba una descripción del producto" v-model="producto.descripcion"></textarea><br/>
@@ -47,100 +47,108 @@
 
 <script>
 
-    import { getDatabase, set, ref, onValue, push} from "firebase/database";
-    import {database, app} from "../Firebase";
-    import * as storage from "firebase/storage";
+import { getDatabase, set, ref, onValue, push } from 'firebase/database'
+import { database, app } from '../Firebase'
+import * as storage from 'firebase/storage'
 
+const store = storage.getStorage(app)
 
-    const store = storage.getStorage(app);
+export default {
 
-    export default {
+  data () {
+    return {
+      categoria: {
+        id: '',
+        nombre: ''
+      },
 
-        data(){
-            return {
-                categoria: {
-                    id: '', 
-                    nombre: ''
-                },
+      categorias: [],
 
-                categorias: [],
+      urlDescarga: '',
 
-                urlDescarga:'',
-                
-                producto:{
-                    nombre:'',
-                    descripcion:'',
-                    categoria:'',
-                    precio:'',
-                    stock:'',
-                },
-                
-                imagenMiniatura:'',
+      producto: {
+        nombre: '',
+        descripcion: '',
+        categoria: '',
+        precio: '',
+        stock: ''
+      },
 
-                imagen:''
-                
-            }
-        },
+      imagenMiniatura: '',
 
-        created(){
-            //metodo para traerse el valor de admin del local storage, si es falso router.push a home
-            this.readCategorias();
-        },
+      imagen: ''
 
-        methods:{
-            async readCategorias(){
-                const categoriasRef = await ref(database, 'categorias/');
-                await onValue(categoriasRef, (snapshot) => {
-                    this.categorias = snapshot.val();
-                    //console.log(this.categorias);
-                    //updateCategoriasRef(postElement, data);
-                });
-            },
-
-            async addProd(){
-                const imageRef = storage.ref(store, `images/imagesProd/${this.imagen.name}`);
-                await storage.uploadBytes(imageRef, this.imagen);
-                //console.log("Guardado "+ this.imagen.name);
-                const urlDescarga = await storage.getDownloadURL(imageRef);
-                this.urlDescarga = urlDescarga;
-                //console.log("URL "+ this.urlDescarga);
-
-                await push(ref(database, 'productos/'),{
-                    nombre: this.producto.nombre,
-                    descripcion: this.producto.descripcion,
-                    categoria: this.producto.categoria,
-                    precio: this.producto.precio,
-                    stock: this.producto.stock,
-                    urlImagen: this.urlDescarga
-                });
-                //console.log("Guardado " + this.producto.name + this.producto.descripcion + this.producto.categoria + this.producto.precio, this.producto.stock, this.urlDescarga);
-            },
-            
-            obtenerImagen(e){
-                let file = e.target.files[0];
-                this.imagen = file;
-                this.cargarImagen(file);
-            },
-
-            cargarImagen(file){
-                let reader = new FileReader();
-                reader.onload = (e) =>{
-                    this.imagenMiniatura = e.target.result;
-                }
-                reader.readAsDataURL(file);
-            },
-            pressed(){
-                this.addProd();
-            }
-            
-        },
-
-        computed:{
-            imagenPrev(){
-                return this.imagenMiniatura;
-            }
-        }
     }
+  },
+
+  created () {
+    // TODO metodo para traerse el valor de admin del local storage, si es falso router.push a home
+    this.getItemAdmin();
+    this.readCategorias();
+  },
+
+  methods: {
+    async readCategorias () {
+      const categoriasRef = await ref(database, 'categorias/')
+      await onValue(categoriasRef, (snapshot) => {
+        this.categorias = snapshot.val()
+        // console.log(this.categorias);
+        // updateCategoriasRef(postElement, data);
+      })
+    },
+
+    async addProd () {
+      const imageRef = storage.ref(store, `images/imagesProd/${this.imagen.name}`)
+      await storage.uploadBytes(imageRef, this.imagen)
+      // console.log("Guardado "+ this.imagen.name);
+      const urlDescarga = await storage.getDownloadURL(imageRef)
+      this.urlDescarga = urlDescarga
+      // console.log("URL "+ this.urlDescarga);
+
+      await push(ref(database, 'productos/'), {
+        nombre: this.producto.nombre,
+        descripcion: this.producto.descripcion,
+        categoria: this.producto.categoria,
+        precio: this.producto.precio,
+        stock: this.producto.stock,
+        urlImagen: this.urlDescarga
+      })
+      // console.log("Guardado " + this.producto.name + this.producto.descripcion + this.producto.categoria + this.producto.precio, this.producto.stock, this.urlDescarga);
+    },
+
+    obtenerImagen (e) {
+      const file = e.target.files[0]
+      this.imagen = file
+      this.cargarImagen(file)
+    },
+
+    cargarImagen (file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        this.imagenMiniatura = e.target.result
+      }
+      reader.readAsDataURL(file)
+    },
+
+    getItemAdmin(){
+      const isAdmin = JSON.parse(localStorage.getItem("admin"));
+      if(!isAdmin){
+        this.$router.push('/');
+      }
+    },
+
+    pressed () {
+      this.addProd()
+    }
+
+  },
+
+  computed: {
+    imagenPrev () {
+      return this.imagenMiniatura
+    }
+  }
+}
 </script>
 
 <style scoped>

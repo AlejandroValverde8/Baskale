@@ -14,7 +14,7 @@
                     <div class="col-md-12">
                         <h4>{{this.producto.nombre}}</h4>
                         <p>{{this.producto.descripcion}}</p>
-                        <a href="#" class="btn btn-success btn-sm">Agregar al carro</a> 
+                        <a href="#" class="btn btn-success btn-sm">Agregar al carro</a>
                     </div>
                 </div>
             </div>
@@ -22,25 +22,25 @@
     </div>
 </template>
 <script>
-    export default {
-        data(){
-            return{
-                producto:{
-                    nombre:'',
-                    descripcion:'',
-                    precio:'',
-                    stock:''
-                }
-            }
-        },
-
-        methods:{
-            obtenerProd(){
-                let idProd = this.$route.params.id;
-                //Conseguir que se vea el producto a raíz de este id
-            }
-        }
+export default {
+  data () {
+    return {
+      producto: {
+        nombre: '',
+        descripcion: '',
+        precio: '',
+        stock: ''
+      }
     }
+  },
+
+  methods: {
+    obtenerProd () {
+      const idProd = this.$route.params.id
+      // Conseguir que se vea el producto a raíz de este id
+    }
+  }
+}
 </script>
 <style>
 

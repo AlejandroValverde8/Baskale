@@ -10,16 +10,16 @@
 </template>
 
 <script>
-import Usuario from '@/components/Usuario.vue';
+import Usuario from '@/components/Usuario.vue'
 export default {
-    components:{
-        Usuario
-    },
-    data(){
-        return{
-            arregloUsuarios:['Bupdar', 'Nudar', 'Gelberte', 'Duvid']
-        }
+  components: {
+    Usuario
+  },
+  data () {
+    return {
+      arregloUsuarios: ['Bupdar', 'Nudar', 'Gelberte', 'Duvid']
     }
-    
+  }
+
 }
 </script>

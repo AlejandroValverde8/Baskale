@@ -18,45 +18,41 @@
 <script>
     import * as firebase from "firebase/app";
     import * as atuen from "firebase/auth";
-    
+    import {database} from "../Firebase"; 
+    import { getDatabase, ref, onValue } from 'firebase/database';
     
     export default {
         methods:{
           async pressed(){
-            try{
               const auth = atuen.getAuth();
               atuen.signInWithEmailAndPassword(auth, this.email, this.password).then((userCredential) => {
-                console.log(userCredential);
-                localStorage.setItem('userId', userCredential.uid);
+                //console.log(userCredential);
+                
 
                 //Buscar usuario actual en la bbdd
 
-                
-
-                //Set local storage la propiedad admin
-
-                
-              })
-              
-              this.$router.push('/usuario/{{this.email}}');
-            }catch(err){
-              console.log(err);
-            }
+                this.readUser(userCredential.user.uid);
+                this.$router.push('/usuario/{{this.email}}');
+              }, (error)=> {
+                console.log(error.message);
+              }
+              );
             
           },
             signup(){
-                this.$router.push('/signup')
+                this.$router.push('/signup');
             },
             signupshop(){
-              this.$router.push('/signup')
+              this.$router.push('/signup');
             },
 
             readUser(userId){
                 const usuario =  ref(database, `usuarios/${userId}`);
-                 onValue(usuario, (snapshot) => {
-                    const idAdmin = usuario.admin;
-                    console.log(isAdmin);
-                });
+                onValue(usuario, (snapshot) => {
+                    const user = snapshot.val();
+                    console.log(user);
+                    localStorage.setItem('admin', user.admin);
+                 });
             },
         },
         data(){

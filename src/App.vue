@@ -1,42 +1,20 @@
 <template>
   <div id="app">
     <div class="container">
-
-
-      <ul class="nav justify-content-center">
-        <li class="nav-item">
-          <router-link to="/" class="nav-link active">Home</router-link>
-        </li>
-        <li class="nav-item">
-          <router-link to="/Productos" class="nav-link">Productos</router-link>
-        </li>
-        <li class="nav-item">
-          <router-link to="/contacto" class="nav-link">Contacto</router-link>
-        </li>
-        <li class="nav-item">
-          <router-link to="/about" class="nav-link">About</router-link>
-        </li>
-        <li class="nav-item">
-            <router-link to="/usuario" class="nav-link">Usuario</router-link>
-        </li>
-        <li class="nav-item">
-          <router-link to="/login" class="nav-link">Log In</router-link>
-        </li>
-         <li class="nav-item">
-           <router-link to="/signup" class="nav-link">Sign Up</router-link>
-        </li>
-      </ul>
-      
-      
-      
-      
-      
-      
-    </div>
+     <Menu />
     <router-view/>
+
+    </div>
   </div>
 </template>
-
+<script>
+  import Menu from "./views/Header";
+  export default {
+    components:{
+      Menu
+    }
+  }
+</script>
 <style>
 @import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 /*
