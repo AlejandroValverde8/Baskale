@@ -3,11 +3,22 @@
     <vue-image-slider
       :images="imageArray"
       :intervalVal="3000"
-      :height="'100%'"
-      :width="'100%'"
+      :height="700"
+      :width="1200"
     />
   </div>
 </template>
+
+<style>
+
+  .slider .container, 
+  .slider .container div div {
+      width: 100%;
+      height: 100%;
+  } 
+
+
+</style>
 
 <script>
 import VueImageSlider from "vue-image-slider";

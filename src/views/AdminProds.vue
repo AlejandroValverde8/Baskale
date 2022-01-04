@@ -8,15 +8,17 @@
               <input type="search" v-model="buscar" @keyup="filtrar" class="form-control" placeholder="Introduzca producto"/>
             </div><br />
             <div class="row">
-                <div v-for="(producto, index) in productosFiltered" :key="index" class="col-md-3">
+                <div v-for="producto in productosFiltered" :key="producto.id" class="col-md-3">
                     <div class="showcase">
                         <img :src="producto.urlImagen">
                     </div>
                     <div class="col-md-12">
-                        <h4><RouterLink :to="`detalle/${index}`">{{producto.nombre}}</RouterLink></h4>
+                        <h4><RouterLink :to="`detalle/${producto.id}`">{{producto.nombre}}</RouterLink></h4>
                         <p>{{producto.descripcion}}</p>
-                        <p>{{producto.precio}} €</p>
-                        <a href="#" class="btn btn-success btn-sm">Agregar al carro</a>
+                        <div class="btn btn-success btn-sm">
+                           <RouterLink :to="`addprod/${producto.id}`">Editar Producto</RouterLink>
+                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -27,10 +29,10 @@
 <script>
 
     import { getAuth } from 'firebase/auth'
-    import { getDatabase, set, ref, onValue, push, equalTo, query } from 'firebase/database'
-    import { initializeApp } from 'firebase/app'
+    import { ref, onValue } from 'firebase/database'
+    
 
-    const db = getDatabase();
+    import { database } from '../Firebase';
 
 
     export default {
@@ -38,6 +40,7 @@
             return {
                 productos: [],
                 productosFiltered: [],
+                productosIds: [],
                 buscar: ''
             }
         },
@@ -49,24 +52,32 @@
         methods:{
             async getAllProds(){
                 const usuarioActual = localStorage.getItem('adminuid');
-                const productosRef = await query(ref(db, 'productos/idTienda'), equalTo(usuarioActual))
-                console.log(productosRef);
-                // await onValue(productosRef, (snapshot) => {
-                // const refProd = snapshot.val();
-                // console.log("refProd" + refProd);
-                // })
-                for (const productId in productosRef) {
-                    this.productos.push(productosRef[productId])
+                const dbRef = ref(database, 'productos/');
+                onValue(dbRef, (snapshot) => {
+                    snapshot.forEach((childSnapshot) => {
+                        const idTienda = childSnapshot.val().idTienda;
+                        if(idTienda == usuarioActual){
+                            this.productos.push(childSnapshot.val());
+                        }
+                    });
+                    const refProd = snapshot.val();
+                    for ( const productId in refProd) {
+                        if(refProd[productId].idTienda == usuarioActual){
+                            this.productosIds.push(productId);
+                        }
+                        
                     }
-                this.productosFiltered = this.productos;
-                // updateCategoriasRef(postElement, data);
-                
+                    this.productos.forEach((element, index) => {
+                       this.productos[index].id = this.productosIds[index];
+                        console.log(this.productos[index], this.productosIds[index]);
+                    });
+                    this.productosFiltered = this.productos; 
+                });
             },
-
             filtrar(){
                 this.productosFiltered = this.productos.filter(producto => (
-                producto.nombre.toLowerCase().includes(this.buscar.toLowerCase())
-            ));
+                    producto.nombre.toLowerCase().includes(this.buscar.toLowerCase())
+                ));
     }
         }
     }

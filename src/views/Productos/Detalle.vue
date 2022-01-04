@@ -9,11 +9,12 @@
                 </div>
                 <div class="col-md-8">
                     <div class="col-md-12 img-section">
-                        <img src="https://placekitten.com/200/100">
+                        <img :src="this.producto.urlImagen">
                     </div>
                     <div class="col-md-12">
                         <h4>{{this.producto.nombre}}</h4>
                         <p>{{this.producto.descripcion}}</p>
+                        <p>{{this.producto.precio}} €</p>
                         <a href="#" class="btn btn-success btn-sm">Agregar al carro</a>
                     </div>
                 </div>
@@ -22,21 +23,30 @@
     </div>
 </template>
 <script>
+  import { database } from "../../Firebase";
+  import { ref, onValue } from "firebase/database";
+
 export default {
+
   data () {
     return {
       producto: {
-        nombre: '',
-        descripcion: '',
-        precio: '',
-        stock: ''
       }
     }
   },
 
+  created () {
+    this.obtenerProd();
+  },
+
   methods: {
     obtenerProd () {
-      const idProd = this.$route.params.id
+      const idProd = this.$route.params.id;
+      const refProd = ref(database, `productos/${idProd}`);
+      onValue(refProd, (snapshot) => {
+        this.producto = snapshot.val();
+        console.log(snapshot.val());
+      });
       // Conseguir que se vea el producto a raíz de este id
     }
   }

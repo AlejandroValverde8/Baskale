@@ -48,10 +48,6 @@ export default {
       atuen
         .signInWithEmailAndPassword(auth, this.email, this.password)
         .then((userCredential) => {
-          //console.log(userCredential);
-
-          //Buscar usuario actual en la bbdd
-
           this.readUser(userCredential.user.uid);
         })
         .catch((err) => {

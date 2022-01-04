@@ -24,7 +24,7 @@
     <button type="button" class="btn btn-info ms-3" v-if="!logged">
       <router-link to="/signup" class="">Sign Up</router-link>
     </button>
-    <button type="button" class="btn btn-danger ms-3" v-if="logged">
+    <button type="button" class="btn btn-danger ms-3" v-if="logged" @click="cerrarSesion()">
       <!-- TODO función cerrar sesión y tiene que setear en local storage logged false y que te redireccione a la home -->
       Cerrar sesión
     </button>
@@ -70,13 +70,30 @@ export default {
   },
   watch: {
     $route(to, from) {
-      // if (to !== from) {
+     this.comprobarEstado();
+    },
+  },
+
+  methods:{
+    comprobarEstado(){
       const isAdmin = JSON.parse(localStorage.getItem("admin")) || false;
       const isLogged = JSON.parse(localStorage.getItem("logged")) || false;
       this.admin = isAdmin;
       this.logged = isLogged;
-      // }
     },
+
+    cerrarSesion(){
+      localStorage.setItem("admin", false);
+      localStorage.setItem("logged", false); 
+      localStorage.setItem("adminName", ''); 
+      localStorage.setItem("adminuid", '');
+      this.$router.push('/home');
+      
+    }
   },
+
+  created(){
+    this.comprobarEstado();
+  }
 };
 </script>

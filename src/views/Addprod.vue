@@ -41,6 +41,7 @@
 
                 <button type="submit" class="btn btn-primary">Guardar</button>
                 <button type="reset" class="btn btn-primary" style="margin-left: 20%">Cancelar</button>
+                <div class="btn btn-outline-danger" style="margin-left: 20%">Eliminar</div>
             </form>
     </div>
 </template>
@@ -72,18 +73,21 @@ export default {
         categoria: '',
         precio: '',
         stock: '',
+        urlImagen: '',
         idAdmin: ''
       },
 
       imagenMiniatura: '',
 
-      imagen: ''
+      imagen: '',
+
+      productoId: ''
 
     }
   },
 
   created () {
-    // TODO metodo para traerse el valor de admin del local storage, si es falso router.push a home
+    this.comprobarModo();
     this.getItemAdmin();
     this.readCategorias();
   },
@@ -138,6 +142,23 @@ export default {
       }
     },
 
+    comprobarModo(){
+      if(this.$route.params.id){
+        this.productoId = this.$route.params.id;
+        this.getProdById();
+      }
+
+    },
+
+    getProdById(){
+      const prodRef = ref(database, `productos/${this.productoId}`);
+      onValue(prodRef, (snapshot) => {
+        this.producto = snapshot.val();
+        console.log(this.producto);
+      });
+      
+    },
+
     pressed () {
       this.addProd()
     }
@@ -146,6 +167,9 @@ export default {
 
   computed: {
     imagenPrev () {
+      if(this.productoId){
+        this.imagenMiniatura = this.producto.urlImagen;
+      }
       return this.imagenMiniatura
     }
   }
