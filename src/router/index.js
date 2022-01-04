@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
+import NotFound from "../views/NotFound.vue";
 import Usuario from "../views/Usuario.vue";
 import Login from "../views/Login.vue";
 import Signup from "../views/Signup.vue";
