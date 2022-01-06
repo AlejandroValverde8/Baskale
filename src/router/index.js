@@ -27,8 +27,9 @@ const routes = [
   { path: "/productos", name: "productos", component: Productos },
   { path: "/adminprods", name: "AdminProds", component: AdminProductos },
   { path: "/detalle/:id", name: "detalle", component: Detalle },
-  { path: "/addprod/:id", name: "addprod", component: Addprod },
-  { path: "*", component: Home } //TODO componente 404 not found
+  { path: "/addprod", name: "addprod", component: Addprod },
+  { path: "/addprod/:id", name: "addprodId", component: Addprod },
+  { path: "*", component: NotFound } 
 ];
 
 const router = new VueRouter({

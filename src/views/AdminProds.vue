@@ -4,9 +4,14 @@
             <div class="col-md-12">
                 <h3>Productos de mi tienda: </h3>
             </div>
-            <div class="form-group">
-              <input type="search" v-model="buscar" @keyup="filtrar" class="form-control" placeholder="Introduzca producto"/>
-            </div><br />
+            
+                <div class="caja_inline">
+                    <input type="search" v-model="buscar" @keyup="filtrar" class="form-control" placeholder="Introduzca producto"/>
+                </div>
+                <div class="caja_inline">
+                    <button type="button" class="btn btn-primary btn-lg" @click="abrirAddProd()">Añadir Producto</button>
+                </div>
+            
             <div class="row">
                 <div v-for="producto in productosFiltered" :key="producto.id" class="col-md-3">
                     <div class="showcase">
@@ -28,10 +33,8 @@
 
 <script>
 
-    import { getAuth } from 'firebase/auth'
-    import { ref, onValue } from 'firebase/database'
-    
-
+    import { getAuth } from 'firebase/auth';
+    import { ref, onValue } from 'firebase/database';
     import { database } from '../Firebase';
 
 
@@ -78,7 +81,17 @@
                 this.productosFiltered = this.productos.filter(producto => (
                     producto.nombre.toLowerCase().includes(this.buscar.toLowerCase())
                 ));
-    }
+            },
+            abrirAddProd(){
+                this.$router.push('/addprods');
+            }
         }
     }
 </script>
+
+<style>
+    .caja_inline {
+        display: inline-block;
+        width: 40%;
+    }
+</style>

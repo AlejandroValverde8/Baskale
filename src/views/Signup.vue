@@ -58,8 +58,7 @@ export default {
               this.errorForm = "El formato del email es incorrecto";
               break;
             case "auth/user-not-found":
-              this.errorForm =
-                "No se ha encontrado un usuario con estas credenciales";
+              this.errorForm = "No se ha encontrado un usuario con estas credenciales";
               break;
             case "auth/wrong-password":
               this.errorForm = "La contraseña es incorrecta para este usuario";

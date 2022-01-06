@@ -25,7 +25,6 @@
       <router-link to="/signup" class="">Sign Up</router-link>
     </button>
     <button type="button" class="btn btn-danger ms-3" v-if="logged" @click="cerrarSesion()">
-      <!-- TODO función cerrar sesión y tiene que setear en local storage logged false y que te redireccione a la home -->
       Cerrar sesión
     </button>
   </ul>
@@ -60,6 +59,8 @@ ul.nav {
 </style>
 
 <script>
+import { getAuth, signOut } from "firebase/auth";
+
 export default {
   name: "Menu",
   data() {
@@ -87,8 +88,21 @@ export default {
       localStorage.setItem("logged", false); 
       localStorage.setItem("adminName", ''); 
       localStorage.setItem("adminuid", '');
-      this.$router.push('/home');
-      
+      localStorage.setItem("store", null);
+
+      const auth = getAuth();
+      signOut(auth).then(() => {
+        // if(this.$router.name == '/home'){
+        //   window.location.reload();
+        // }else{
+        //   
+        // }
+        this.$router.push('/home');
+         
+      }).catch((error) => {
+        console.log(error);
+      });
+     
     }
   },
 
