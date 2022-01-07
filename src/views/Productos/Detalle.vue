@@ -17,7 +17,7 @@
                     </div>
                 </div>
                 <div class="col-md-4" style="display: inline-block">
-                  <Carrito :prodCarrito="productosCarrito" @on:quitarProducto=quitarProducto() @on:comprar=comprar()></Carrito>
+                  <Carrito :prodCarrito="productosCarrito" v-on:quitarProducto="quitarProducto" @on:comprar=comprar()></Carrito>
                 </div>
             </div>
         </div>
@@ -36,9 +36,6 @@ export default {
 
   data () {
     return {
-      producto: {
-      },
-
       productosCarrito: []
     }
   },
@@ -54,17 +51,31 @@ export default {
       const refProd = ref(database, `productos/${idProd}`);
       onValue(refProd, (snapshot) => {
         this.producto = snapshot.val();
+        this.producto.id = idProd;
         console.log(snapshot.val());
       });
     },
 
      addProdCarrito(producto){
-        this.productosCarrito.push(producto);
+        const item = this.productosCarrito.find(item => item.id === producto.id);
+        if(item){
+          this.productosCarrito.find((prod, index) => {
+            if(prod.id == item.id){
+              item.cantidadCarrito = item.cantidadCarrito + 1;
+              this.productosCarrito.splice(index, 1, item);
+            }
+          });
+          console.log(this.productosCarrito);
+        } else{
+          producto.cantidadCarrito = 1;
+          this.productosCarrito.push(producto);
+        }
         localStorage.setItem('store', JSON.stringify(this.productosCarrito));
       },
 
-      quitarProducto(){
-
+      quitarProducto(producto){
+        this.productosCarrito = this.productosCarrito.filter(item => item.id != producto.id);
+        localStorage.setItem('store', JSON.stringify(this.productosCarrito));
       },
 
       comprobarCarrito(){
@@ -73,6 +84,7 @@ export default {
           const arrCarr = JSON.parse(arrCarrito);
           console.log(arrCarr);
           for(let index in arrCarr){
+            arrCarr[index].cantidadCarrito =  Number(arrCarr[index].cantidadCarrito);
             this.productosCarrito.push(arrCarr[index]);
           }
         }

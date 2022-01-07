@@ -21,11 +21,12 @@
 <script>
     export default {
         name:'Carrito',
-        props: ['prodCarrito'],
+        props: ['prodCarrito', 'arrIdCan'],
         computed:{
             total() {
-                return this.prodCarrito.reduce((acumulador, producto) => acumulador + Number(producto.precio),0);
+                return this.prodCarrito.reduce((acumulador, producto) => acumulador + Number(producto.precio * producto.cantidadCarrito),0);
             }
+           
         },
         methods:{
             quitarProducto(producto){

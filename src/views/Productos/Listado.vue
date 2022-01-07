@@ -30,7 +30,7 @@
       </div>
       
       <div class="col-md-4" style="display: inline-block">
-        <Carrito :prodCarrito="productosCarrito"  v-on:quitarProducto="quitarProducto" v-on:comprar=comprar()></Carrito>
+        <Carrito :prodCarrito="productosCarrito" :arrIdCan="arrIdCantidad" v-on:quitarProducto="quitarProducto" v-on:comprar=comprar()></Carrito>
       </div>
 
     </div>
@@ -54,6 +54,10 @@
         productosFiltered: [],
         productosIds: [],
         productosCarrito: [],
+        arrIdCantidad: [{
+          id: '',
+          cantidad: ''
+        }],
         buscar: ''
       };
     },
@@ -92,9 +96,10 @@
       addProdCarrito(producto){
         const item = this.productosCarrito.find(item => item.id === producto.id);
         if(item){
-          this.productosCarrito.find(prod => {
+          this.productosCarrito.find((prod, index) => {
             if(prod.id == item.id){
-              prod.cantidadCarrito = prod.cantidadCarrito + 1;
+              item.cantidadCarrito = item.cantidadCarrito + 1;
+              this.productosCarrito.splice(index, 1, item);
             }
           })
           console.log(this.productosCarrito);
@@ -103,6 +108,7 @@
           this.productosCarrito.push(producto);
         }
         localStorage.setItem('store', JSON.stringify(this.productosCarrito));
+        
       },
 
       quitarProducto(producto){
@@ -116,6 +122,7 @@
           const arrCarr = JSON.parse(arrCarrito);
           console.log(arrCarr);
           for(let index in arrCarr){
+            arrCarr[index].cantidadCarrito = Number(arrCarr[index].cantidadCarrito);
             this.productosCarrito.push(arrCarr[index]);
           }
         }
