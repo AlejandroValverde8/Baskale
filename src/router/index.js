@@ -20,7 +20,7 @@ Vue.use(VueRouter);
 const routes = [
   { path: "/home", name: "Home", component: Home },
   { path: "/about", name: "About", component: About },
-  { path: "/", redirect: '/home' },
+  { path: "/", redirect: "/home" },
   { path: "/usuario/:id", name: "usuario", component: Usuario },
   { path: "/login", name: "login", component: Login },
   { path: "/signup", name: "signup", component: Signup },
@@ -29,7 +29,7 @@ const routes = [
   { path: "/detalle/:id", name: "detalle", component: Detalle },
   { path: "/addprod", name: "addprod", component: Addprod },
   { path: "/addprod/:id", name: "addprodId", component: Addprod },
-  { path: "*", component: NotFound } 
+  { path: "*", component: NotFound },
 ];
 
 const router = new VueRouter({

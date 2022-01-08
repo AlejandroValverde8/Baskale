@@ -44,7 +44,6 @@ export default {
       createUserWithEmailAndPassword(auth, this.email, this.password)
         .then((userCredential) => {
           const user = userCredential.user;
-          console.log(user.uid);
           set(ref(database, `usuarios/${user.uid}`), {
             // nombre:
             correo: user.email,
@@ -52,13 +51,13 @@ export default {
           });
         })
         .catch((err) => {
-          console.log(err.code);
           switch (err.code) {
             case "auth/invalid-email":
               this.errorForm = "El formato del email es incorrecto";
               break;
             case "auth/user-not-found":
-              this.errorForm = "No se ha encontrado un usuario con estas credenciales";
+              this.errorForm =
+                "No se ha encontrado un usuario con estas credenciales";
               break;
             case "auth/wrong-password":
               this.errorForm = "La contraseña es incorrecta para este usuario";
