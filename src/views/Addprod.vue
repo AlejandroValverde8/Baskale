@@ -1,6 +1,8 @@
 <template>
   <div class="container">
-    <h3 class="mb-4">{{ this.productoId ? "Editar producto" : "Añadir producto" }}</h3>
+    <h3 class="mb-4">
+      {{ this.productoId ? "Editar producto" : "Añadir producto" }}
+    </h3>
     <form @submit.prevent="getFormValues" class="form-addprod row">
       <div class="col-12 col-md-6">
         <div class="form-group">
@@ -19,7 +21,9 @@
             v-if="this.formErrors.nombre"
             class="alert alert-danger py-1 mt-2"
             role="alert"
-          >Campo requerido</div>
+          >
+            Campo requerido
+          </div>
         </div>
       </div>
 
@@ -40,7 +44,9 @@
             v-if="this.formErrors.precio"
             class="alert alert-danger py-1 mt-2"
             role="alert"
-          >Campo requerido</div>
+          >
+            Campo requerido
+          </div>
         </div>
       </div>
 
@@ -49,13 +55,18 @@
           Categoría
           <span class="required" />
         </label>
-        <select class="form-select" id="selectCategoria" v-model="producto.categoria">
+        <select
+          class="form-select"
+          id="selectCategoria"
+          v-model="producto.categoria"
+        >
           <option value>Seleccione una categoría</option>
           <option
             v-for="categoria in categorias"
             :value="categoria.nombre"
             :key="categoria.id"
-          >{{ categoria.nombre }}</option>
+            >{{ categoria.nombre }}</option
+          >
         </select>
       </div>
 
@@ -98,11 +109,18 @@
               Imagen
               <span class="required" />
             </label>
-            <div v-if="this.imagenMiniatura" class="btn btn-danger mb-4" @click="borrarImagen()">
+            <div
+              v-if="this.imagenMiniatura"
+              class="btn btn-danger mb-4"
+              @click="borrarImagen()"
+            >
               <i class="bi bi-trash me-3"></i>Eliminar imagen
             </div>
             <div class="uploadFile">
-              <div v-if="!this.imagenMiniatura" class="col-12 btn btn-primary mb-4">
+              <div
+                v-if="!this.imagenMiniatura"
+                class="col-12 btn btn-primary mb-4"
+              >
                 <i class="bi bi-upload me-3"></i>Subir imagen
               </div>
               <input
@@ -128,10 +146,9 @@
 
       <hr />
       <div class="col-12 col-md-4 mt-4">
-        <button
-          type="submit"
-          class="col-12 btn btn-success"
-        >{{ this.productoId ? "Guardar" : "Crear" }}</button>
+        <button type="submit" class="col-12 btn btn-success">
+          {{ this.productoId ? "Guardar" : "Crear" }}
+        </button>
       </div>
       <div class="col-12 col-md-4 mt-4">
         <button type="reset" class="col-12 btn btn-secondary">Cancelar</button>
@@ -141,7 +158,9 @@
           v-if="this.$route.params.id"
           @click="borrarProdById()"
           class="col-12 btn btn-outline-danger"
-        >Eliminar</div>
+        >
+          Eliminar
+        </div>
       </div>
     </form>
   </div>
@@ -159,7 +178,7 @@ export default {
     return {
       categoria: {
         id: "",
-        nombre: ""
+        nombre: "",
       },
 
       categorias: [],
@@ -173,19 +192,15 @@ export default {
         precio: "",
         stock: "",
         urlImagen: "",
-        idAdmin: ""
+        idAdmin: "",
       },
 
-      formErrors: {
-        nombre: false,
-        precio: false
-      },
-
+      formErrors: [{ nombre: false }, { precio: false }],
       imagenMiniatura: "",
 
       imagen: "",
 
-      productoId: ""
+      productoId: "",
     };
   },
 
@@ -198,7 +213,7 @@ export default {
   methods: {
     async readCategorias() {
       const categoriasRef = await ref(database, "categorias/");
-      await onValue(categoriasRef, snapshot => {
+      await onValue(categoriasRef, (snapshot) => {
         this.categorias = snapshot.val();
       });
     },
@@ -219,7 +234,7 @@ export default {
         precio: this.producto.precio,
         stock: this.producto.stock,
         urlImagen: this.urlDescarga,
-        idTienda: localStorage.getItem("adminuid")
+        idTienda: localStorage.getItem("adminuid"),
       });
     },
 
@@ -231,7 +246,7 @@ export default {
 
     cargarImagen(file) {
       const reader = new FileReader();
-      reader.onload = e => {
+      reader.onload = (e) => {
         this.imagenMiniatura = e.target.result;
       };
       reader.readAsDataURL(file);
@@ -257,7 +272,7 @@ export default {
 
     getProdById() {
       const prodRef = ref(database, `productos/${this.productoId}`);
-      onValue(prodRef, snapshot => {
+      onValue(prodRef, (snapshot) => {
         this.producto = snapshot.val();
         this.imagenMiniatura = this.producto.urlImagen;
       });
@@ -275,34 +290,34 @@ export default {
     },
 
     getFormValues(values) {
-      this.formErrors = {
-        nombre: false,
-        precio: false
+      this.formErrors = [
+        { nombre: { value: false } },
+        { precio: { value: false } },
         // ...
-      };
+      ];
       const nombre = values.target.elements.nombre.value;
       const precio = values.target.elements.precio.value;
       // TODO declarar todas las variables del formulario
       const allValues = {
         nombre,
-        precio
+        precio,
         // ...
       };
       const errors = this.validateForm(allValues);
-      if (errors.find(validacion => !!validacion)) return;
+      if (errors.find((validacion) => !!validacion.value)) return;
       else this.addProd();
     },
 
     validateForm(allValues) {
       const { nombre, precio } = allValues;
-      if (nombre == "") this.formErrors.nombre = true;
+      if (nombre == "") this.formErrors.nombre.value = true;
       // igual con todos
 
       return this.formErrors;
-    }
+    },
   },
 
-  computed: {}
+  computed: {},
 };
 </script>
 
