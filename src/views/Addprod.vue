@@ -34,21 +34,21 @@
                 <div class="form-group">
                     <label for="imagen">Imagen del Producto</label>
                     <input type="file" @change="obtenerImagen" class="form-control-file" id="imagen" placeholder=""><br/>
-                    <figure>
-                        <img width="30%" height="15%" :src="imagenPrev" alt="Foto del producto">
-                    </figure>
+                    <div class="imagenContainer">
+                        <img :src="imagenPrev" :alt="producto.nombre || 'foto del producto'">
+                    </div>
                 </div><br/>
 
                 <button type="submit" class="btn btn-primary">Guardar</button>
                 <button type="reset" class="btn btn-primary" style="margin-left: 20%">Cancelar</button>
-                <div class="btn btn-outline-danger" style="margin-left: 20%">Eliminar</div>
+                <div v-if="this.$route.params.id" @click="borrarProdById()" class="btn btn-outline-danger" style="margin-left: 20%">Eliminar</div>
             </form>
     </div>
 </template>
 
 <script>
 
-import { getDatabase, set, ref, onValue, push } from 'firebase/database'
+import { getDatabase, set, ref, onValue, push, remove } from 'firebase/database'
 import { database, app } from '../Firebase'
 import * as storage from 'firebase/storage'
 
@@ -73,8 +73,7 @@ export default {
         categoria: '',
         precio: '',
         stock: '',
-        urlImagen: '',
-        idAdmin: ''
+        urlImagen: ''
       },
 
       imagenMiniatura: '',
@@ -116,7 +115,8 @@ export default {
         categoria: this.producto.categoria,
         precio: this.producto.precio,
         stock: this.producto.stock,
-        urlImagen: this.urlDescarga
+        urlImagen: this.urlDescarga,
+        idTienda: localStorage.getItem("adminuid")
       })
       // console.log("Guardado " + this.producto.name + this.producto.descripcion + this.producto.categoria + this.producto.precio, this.producto.stock, this.urlDescarga);
     },
@@ -159,6 +159,13 @@ export default {
       
     },
 
+    borrarProdById(){
+      const prodRef = ref(database, `productos/${this.productoId}`);
+        remove(prodRef);
+        console.log("Borrado");
+        this.$router.push("/adminprods");
+    },
+
     pressed () {
       this.addProd()
     }
@@ -177,5 +184,14 @@ export default {
 </script>
 
 <style scoped>
+
+    .imagenContainer{
+      max-width: 30%;
+      height: auto;
+    }
+
+    .imagenContainer img{
+      width: 100%;
+    }
 
 </style>

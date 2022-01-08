@@ -83,7 +83,7 @@
                 ));
             },
             abrirAddProd(){
-                this.$router.push('/addprods');
+                this.$router.push('/addprod');
             }
         }
     }
