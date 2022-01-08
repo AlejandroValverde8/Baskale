@@ -1,154 +1,168 @@
 <template>
   <div class="container">
-    <div class="cover">
-      <div class="col-md-8" style="display: inline-block">
-        <h3>Productos</h3>
-        <div class="form-group">
+    <div class="row">
+      <div :class="!this.admin ? 'col-md-8 col-12' : 'col-12'">
+        <h3 class="mb-4">Productos</h3>
+        <div class="form-group mb-4">
           <input
             type="search"
             v-model="buscar"
             @keyup="filtrar"
             class="form-control"
-            placeholder="Introduzca producto"
+            placeholder="Buscar producto por nombre"
           />
-        </div><br />
-        <div class="row">
-          <div v-for="producto in productosFiltered" :key="producto.id" class="col-md-3">
-            <div class="showcase">
-              <img :src="producto.urlImagen" />
-            </div>
-            <div class="col-md-12">
-              <h4>
-                <RouterLink :to="`detalle/${producto.id}`">{{producto.nombre}}</RouterLink>
-              </h4>
-              <p>{{producto.descripcion}}</p>
-              <p><b>Precio:</b> {{producto.precio}} €</p>
-              <button @click="addProdCarrito(producto)" class="btn btn-success btn-sm">Agregar al carro</button>
+        </div>
+        <hr />
+        <div class="row mt-4">
+          <div
+            v-for="producto in productosFiltered"
+            :key="producto.id"
+            class="col-12 col-md-6 col-lg-4 mb-3"
+          >
+            <div class="card mx-md-1">
+              <img
+                :src="producto.urlImagen"
+                class="card-img-top"
+                :alt="producto.nombre || 'Nombre de producto'"
+              />
+              <div class="card-body">
+                <h5 class="card-title">
+                  <RouterLink :to="`detalle/${producto.id}`">{{
+                    producto.nombre
+                  }}</RouterLink>
+                </h5>
+                <p class="card-text">
+                  {{ producto.descripcion }}
+                </p>
+                <p class="card-text">
+                  <b>Precio:</b>
+                  {{ producto.precio ? `${producto.precio} €` : "Consultar" }}
+                </p>
+                <div
+                  @click="addProdCarrito(producto)"
+                  class="col-12 btn btn-outline-success btn-sm"
+                >
+                  <i class="bi bi-cart-plus"></i>
+                  <span class="ms-2">Añadir a la cesta</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      
-      <div class="col-md-4" style="display: inline-block">
-        <Carrito :prodCarrito="productosCarrito" :arrIdCan="arrIdCantidad" v-on:quitarProducto="quitarProducto" v-on:comprar=comprar()></Carrito>
-      </div>
 
+      <div v-if="!this.admin" class="col-12 col-md-4">
+        <Carrito
+          :prodCarrito="productosCarrito"
+          :arrIdCan="arrIdCantidad"
+          v-on:quitarProducto="quitarProducto"
+          v-on:comprar="comprar()"
+        ></Carrito>
+      </div>
     </div>
   </div>
 </template>
 <script>
-  import { getDatabase, ref, onValue } from "firebase/database";
-  import { initializeApp } from "firebase/app";
-  import { database } from "../../Firebase";
-  import Carrito from '../Carrito';
+import { ref, onValue } from "firebase/database";
+import { database } from "../../Firebase";
+import Carrito from "../Carrito";
 
-  export default {
+export default {
+  components: {
+    Carrito,
+  },
 
-    components: {
-      Carrito        
-    },
+  data() {
+    return {
+      productos: [],
+      productosFiltered: [],
+      productosIds: [],
+      productosCarrito: [],
+      arrIdCantidad: [
+        {
+          id: "",
+          cantidad: "",
+        },
+      ],
+      buscar: "",
+      admin: false,
+    };
+  },
 
-    data() {
-      return {
-        productos: [],
-        productosFiltered: [],
-        productosIds: [],
-        productosCarrito: [],
-        arrIdCantidad: [{
-          id: '',
-          cantidad: ''
-        }],
-        buscar: ''
-      };
-    },
+  created() {
+    this.getAllProds();
+    this.comprobarCarrito();
+  },
 
-    created() {
-      this.getAllProds();
-      this.comprobarCarrito();
-    },
-
-    methods: {
-      async getAllProds() {
-        const productosRef = await ref(database, "productos/");
-        await onValue(productosRef, snapshot => {
-          const refProd = snapshot.val();
-          for (const productId in refProd) {
-            this.productos.push(refProd[productId]);
-            this.productosIds.push(productId);
-          }
-
-          this.productos.forEach((element, index) => {
-            this.productos[index].id = this.productosIds[index];
-          });
-
-          this.productosFiltered = this.productos;
-          console.log(this.productosFiltered);
-          // updateCategoriasRef(postElement, data);
-        });
-      },
-
-      filtrar() {
-        this.productosFiltered = this.productos.filter(producto =>
-          producto.nombre.toLowerCase().includes(this.buscar.toLowerCase())
-        );
-      },
-
-      addProdCarrito(producto){
-        const item = this.productosCarrito.find(item => item.id === producto.id);
-        if(item){
-          this.productosCarrito.find((prod, index) => {
-            if(prod.id == item.id){
-              item.cantidadCarrito = item.cantidadCarrito + 1;
-              this.productosCarrito.splice(index, 1, item);
-            }
-          })
-          console.log(this.productosCarrito);
-        } else{
-          producto.cantidadCarrito = 1;
-          this.productosCarrito.push(producto);
+  methods: {
+    async getAllProds() {
+      this.admin = JSON.parse(localStorage.getItem("admin")) || false;
+      const productosRef = await ref(database, "productos/");
+      await onValue(productosRef, (snapshot) => {
+        const refProd = snapshot.val();
+        for (const productId in refProd) {
+          this.productos.push(refProd[productId]);
+          this.productosIds.push(productId);
         }
-        localStorage.setItem('store', JSON.stringify(this.productosCarrito));
-        
-      },
 
-      quitarProducto(producto){
-        this.productosCarrito = this.productosCarrito.filter(item => item.id != producto.id);
-        localStorage.setItem('store', JSON.stringify(this.productosCarrito));
-      },
+        this.productos.forEach((element, index) => {
+          this.productos[index].id = this.productosIds[index];
+        });
 
-      comprobarCarrito(){
-        if(localStorage.getItem('store') != null){
-          const arrCarrito = localStorage.getItem('store');
-          const arrCarr = JSON.parse(arrCarrito);
-          console.log(arrCarr);
-          for(let index in arrCarr){
-            arrCarr[index].cantidadCarrito = Number(arrCarr[index].cantidadCarrito);
-            this.productosCarrito.push(arrCarr[index]);
+        this.productosFiltered = this.productos;
+      });
+    },
+
+    filtrar() {
+      this.productosFiltered = this.productos.filter((producto) =>
+        producto.nombre.toLowerCase().includes(this.buscar.toLowerCase())
+      );
+    },
+
+    addProdCarrito(producto) {
+      const item = this.productosCarrito.find(
+        (item) => item.id === producto.id
+      );
+      if (item) {
+        this.productosCarrito.find((prod, index) => {
+          if (prod.id == item.id) {
+            item.cantidadCarrito = item.cantidadCarrito + 1;
+            this.productosCarrito.splice(index, 1, item);
           }
+        });
+      } else {
+        producto.cantidadCarrito = 1;
+        this.productosCarrito.push(producto);
+      }
+      localStorage.setItem("store", JSON.stringify(this.productosCarrito));
+    },
+
+    quitarProducto(producto) {
+      this.productosCarrito = this.productosCarrito.filter(
+        (item) => item.id != producto.id
+      );
+      localStorage.setItem("store", JSON.stringify(this.productosCarrito));
+    },
+
+    comprobarCarrito() {
+      if (localStorage.getItem("store") != null) {
+        const arrCarrito = localStorage.getItem("store");
+        const arrCarr = JSON.parse(arrCarrito);
+        for (let index in arrCarr) {
+          arrCarr[index].cantidadCarrito = Number(
+            arrCarr[index].cantidadCarrito
+          );
+          this.productosCarrito.push(arrCarr[index]);
         }
       }
-
     },
+  },
 
-    
-
-    computed: {}
-  };
+  computed: {},
+};
 </script>
 <style>
-  .cover {
-    padding: 20px;
-    margin: 40px 2px;
-    border: 1px solid #d2e0e6;
-  }
-
-  img {
-    max-width: 100%;
-    max-height: 100%;
-  }
-
-  .showcase {
-    height: 100px;
-    width: 150px;
-  }
+.card-title a {
+  text-decoration: none;
+}
 </style>

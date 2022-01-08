@@ -24,7 +24,12 @@
     <button type="button" class="btn btn-info ms-3" v-if="!logged">
       <router-link to="/signup" class="">Sign Up</router-link>
     </button>
-    <button type="button" class="btn btn-danger ms-3" v-if="logged" @click="cerrarSesion()">
+    <button
+      type="button"
+      class="btn btn-danger ms-3"
+      v-if="logged"
+      @click="cerrarSesion()"
+    >
       Cerrar sesión
     </button>
   </ul>
@@ -35,7 +40,7 @@ ul.nav {
   background: rgb(238, 238, 238);
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 13;
 }
 .shadow {
   box-shadow: 0 4px 2px -2px gray;
@@ -71,43 +76,42 @@ export default {
   },
   watch: {
     $route(to, from) {
-     this.comprobarEstado();
+      this.comprobarEstado();
     },
   },
 
-  methods:{
-    comprobarEstado(){
+  methods: {
+    comprobarEstado() {
       const isAdmin = JSON.parse(localStorage.getItem("admin")) || false;
       const isLogged = JSON.parse(localStorage.getItem("logged")) || false;
       this.admin = isAdmin;
       this.logged = isLogged;
     },
 
-    cerrarSesion(){
+    cerrarSesion() {
       localStorage.setItem("admin", false);
-      localStorage.setItem("logged", false); 
-      localStorage.setItem("adminName", ''); 
-      localStorage.setItem("adminuid", '');
+      localStorage.setItem("logged", false);
+      localStorage.setItem("adminName", "");
+      localStorage.setItem("adminuid", "");
       localStorage.setItem("store", null);
 
       const auth = getAuth();
-      signOut(auth).then(() => {
-        // if(this.$router.name == '/home'){
-        //   window.location.reload();
-        // }else{
-        //   
-        // }
-        this.$router.push('/home');
-         
-      }).catch((error) => {
-        console.log(error);
-      });
-     
-    }
+      signOut(auth)
+        .then(() => {
+          if (this.$router.history.current.path == "/home") {
+            window.location.reload();
+          } else {
+            this.$router.push("/home");
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
   },
 
-  created(){
+  created() {
     this.comprobarEstado();
-  }
+  },
 };
 </script>
