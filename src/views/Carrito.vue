@@ -79,11 +79,13 @@ export default {
   props: ["prodCarrito", "arrIdCan"],
   computed: {
     total() {
-      return this.prodCarrito.reduce(
+      const cuenta = this.prodCarrito.reduce(
         (acumulador, producto) =>
           acumulador + Number(producto.precio * producto.cantidadCarrito),
         0
       );
+      this.$emit("devolverTotal", cuenta);
+      return cuenta;
     },
   },
   methods: {

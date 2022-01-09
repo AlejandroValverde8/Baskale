@@ -58,6 +58,7 @@
           :arrIdCan="arrIdCantidad"
           v-on:quitarProducto="quitarProducto"
           v-on:comprar="comprar"
+          v-on:devolverTotal="recogerTotal"
         ></Carrito>
       </div>
     </div>
@@ -96,12 +97,14 @@ export default {
       buscar: "",
       admin: false,
       modal: MyModal.data.modal,
+      total: "",
     };
   },
 
   created() {
     this.getAllProds();
     this.comprobarCarrito();
+    console.log(this.Carrito);
   },
 
   methods: {
@@ -165,6 +168,23 @@ export default {
           this.productosCarrito.push(arrCarr[index]);
         }
       }
+    },
+    recogerTotal(cuenta) {
+      this.total = cuenta;
+      console.log(cuenta);
+    },
+    async guardarCompra() {
+      let arrayIds;
+
+      productosCarrito.forEach((element) => {
+        arrayIds = element.idTienda;
+      });
+
+      await push(ref(database, "compras/"), {
+        idsTienda: this.compra.idTienda,
+        idUsuario: localStorage.getItem("uid"),
+        cantidadTotal: this.total,
+      });
     },
 
     comprar() {
