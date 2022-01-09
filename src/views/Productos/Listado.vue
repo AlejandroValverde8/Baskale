@@ -65,7 +65,7 @@
     <MyModal
       :titulo="`Su compra`"
       :texto="`Productos`"
-      :acciones="accionesModal"
+      :acciones="botonesModal"
     />
   </div>
 </template>
@@ -96,6 +96,7 @@ export default {
       buscar: "",
       admin: false,
       total: "",
+      botonesModal: `<div><button type='button' class='btn btn-secondary' @click=${this.cerrarModal()}>Close</button><button type='button' class='btn btn-primary ms-3'>Save changes</button></div>`,
     };
   },
 
@@ -152,6 +153,10 @@ export default {
       this.$cuteModal.open("mod");
     },
 
+    cerrarModal() {
+      this.$cuteModal.hide("mod");
+    },
+
     quitarProducto(producto) {
       this.productosCarrito = this.productosCarrito.filter(
         (item) => item.id != producto.id
@@ -188,26 +193,7 @@ export default {
         cantidadTotal: this.total,
       });
     },
-
-    accionesModal() {
-      return (
-        <div>
-          <button
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >
-            Close
-          </button>
-          <button type="button" class="btn btn-primary">
-            Save changes
-          </button>
-        </div>
-      );
-    },
   },
-
-  computed: {},
 };
 </script>
 <style>
