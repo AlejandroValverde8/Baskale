@@ -1,5 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
+import CuteModal from "vue-cute-modal";
+
 import Home from "../views/Home.vue";
 import NotFound from "../views/NotFound.vue";
 import Usuario from "../views/Usuario.vue";
@@ -16,6 +18,7 @@ Vue.prototype.$axios = axios;
 Vue.config.productionTip = false;
 
 Vue.use(VueRouter);
+Vue.use(CuteModal);
 
 const routes = [
   { path: "/home", name: "Home", component: Home },

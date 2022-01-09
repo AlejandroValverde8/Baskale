@@ -8,6 +8,7 @@
 </template>
 <script>
 import Menu from "./views/Header";
+
 export default {
   components: {
     Menu,
