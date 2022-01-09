@@ -1,14 +1,28 @@
 <template>
   <div class="container">
     <div class="wrapper my-5">
+      <toast
+        v-if="showToast"
+        :texto="'El usuario se ha creado correctamente'"
+        :estado="'success'"
+      />
       <form class="form-signin" @submit.prevent="pressed">
         <h2 class="form-signin-heading">Introduzca sus datos</h2>
         <input
           type="text"
-          v-model="email"
+          v-model="nombre"
           class="form-control"
-          name="username"
-          placeholder="Email Address"
+          name="displayName"
+          placeholder="Nombre"
+          @keydown="clearError"
+          required
+        />
+        <input
+          type="text"
+          v-model="email"
+          class="form-control mt-3"
+          name="email"
+          placeholder="Correo electrónico"
           @keydown="clearError"
           required
         />
@@ -17,10 +31,20 @@
           v-model="password"
           class="form-control mt-3"
           name="password"
-          placeholder="Password"
+          placeholder="Contraseña"
           @keydown="clearError"
           required
         />
+        <div class="form-check form-switch mb-4">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="admin"
+            v-model="admin"
+          />
+          <label class="form-check-label" for="admin">Soy una tienda</label>
+        </div>
+
         <div class="alert alert-danger my-4" role="alert" v-if="errorForm">
           {{ errorForm }}
         </div>
@@ -36,19 +60,25 @@
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { set, ref } from "firebase/database";
 import { database } from "../Firebase";
+import Toast from "../components/Toast.vue";
 
 export default {
+  components: {
+    Toast,
+  },
   methods: {
     async pressed() {
+      this.showToast = false;
       const auth = getAuth();
       createUserWithEmailAndPassword(auth, this.email, this.password)
         .then((userCredential) => {
           const user = userCredential.user;
           set(ref(database, `usuarios/${user.uid}`), {
-            // nombre:
+            nombre: this.nombre,
             correo: user.email,
-            admin: false,
+            admin: !!this.admin,
           });
+          this.showToast = true;
         })
         .catch((err) => {
           switch (err.code) {
@@ -81,9 +111,12 @@ export default {
 
   data() {
     return {
+      nombre: "",
       email: "",
       password: "",
+      admin: "",
       errorForm: "",
+      showToast: false,
     };
   },
 };

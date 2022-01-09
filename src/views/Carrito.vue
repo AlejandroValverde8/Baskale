@@ -90,6 +90,9 @@ export default {
     quitarProducto(producto) {
       this.$emit("quitarProducto", producto);
     },
+    comprar() {
+      this.$emit("comprar");
+    },
   },
 };
 </script>

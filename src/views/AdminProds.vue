@@ -81,7 +81,7 @@ export default {
 
   methods: {
     async getAllProds() {
-      const usuarioActual = localStorage.getItem("adminuid");
+      const usuarioActual = localStorage.getItem("uid");
       const dbRef = ref(database, "productos/");
       onValue(dbRef, (snapshot) => {
         snapshot.forEach((childSnapshot) => {

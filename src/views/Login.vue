@@ -1,6 +1,7 @@
 <template>
   <div class="container">
     <div class="wrapper my-5">
+      <toast v-if="showToast" :texto="toast.texto" :estado="toast.estado" />
       <form class="form-signin" @submit.prevent="pressed">
         <h2 class="form-signin-heading">Introduzca sus credenciales</h2>
         <input
@@ -40,15 +41,25 @@
 import * as atuen from "firebase/auth";
 import { database } from "../Firebase";
 import { ref, onValue } from "firebase/database";
+import Toast from "../components/Toast.vue";
 
 export default {
+  components: {
+    Toast,
+  },
   methods: {
     async pressed() {
+      this.showToast = false;
       const auth = atuen.getAuth();
       atuen
         .signInWithEmailAndPassword(auth, this.email, this.password)
         .then((userCredential) => {
           this.readUser(userCredential.user.uid);
+          this.toast = {
+            texto: "El usuario se ha autentificado correctamente",
+            estado: "success",
+          };
+          this.showToast = true;
         })
         .catch((err) => {
           switch (err.code) {
@@ -69,12 +80,15 @@ export default {
               this.errorForm = "Las credenciales son incorrectas";
               break;
           }
+
+          this.toast = {
+            texto: "Error al autentificar usuario",
+            estado: "danger",
+          };
+          this.showToast = true;
         });
     },
     signup() {
-      this.$router.push("/signup");
-    },
-    signupshop() {
       this.$router.push("/signup");
     },
     clearError() {
@@ -87,16 +101,21 @@ export default {
         localStorage.setItem("adminName", user.nombre);
         localStorage.setItem("admin", user.admin);
         localStorage.setItem("logged", true);
-        localStorage.setItem("adminuid", userId);
+        localStorage.setItem("uid", userId);
         this.$router.push(user.admin ? "/adminprods" : "/productos");
       });
     },
   },
   data() {
     return {
-      email: '',
-      password: '',
-      errorForm: '',
+      email: "",
+      password: "",
+      errorForm: "",
+      toast: {
+        texto: "",
+        estado: "",
+      },
+      showToast: false,
     };
   },
 };

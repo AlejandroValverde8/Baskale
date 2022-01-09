@@ -39,6 +39,7 @@
                   {{ producto.precio ? `${producto.precio} €` : "Consultar" }}
                 </p>
                 <div
+                  v-if="!admin"
                   @click="addProdCarrito(producto)"
                   class="col-12 btn btn-outline-success btn-sm"
                 >
@@ -56,20 +57,28 @@
           :prodCarrito="productosCarrito"
           :arrIdCan="arrIdCantidad"
           v-on:quitarProducto="quitarProducto"
-          v-on:comprar="comprar()"
+          v-on:comprar="comprar"
         ></Carrito>
       </div>
     </div>
+    <MyModal
+      :titulo="`Su compra`"
+      :texto="`Productos`"
+      :acciones="accionesModal"
+    />
   </div>
 </template>
 <script>
 import { ref, onValue } from "firebase/database";
 import { database } from "../../Firebase";
 import Carrito from "../Carrito";
+import MyModal from "../../components/Modal.vue";
+import { methods } from "../../components/Modal.vue";
 
 export default {
   components: {
     Carrito,
+    MyModal,
   },
 
   data() {
@@ -86,6 +95,7 @@ export default {
       ],
       buscar: "",
       admin: false,
+      modal: MyModal.data.modal,
     };
   },
 
@@ -155,6 +165,27 @@ export default {
           this.productosCarrito.push(arrCarr[index]);
         }
       }
+    },
+
+    comprar() {
+      methods.mostrar();
+    },
+
+    accionesModal() {
+      return (
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+          <button type="button" class="btn btn-primary">
+            Save changes
+          </button>
+        </div>
+      );
     },
   },
 

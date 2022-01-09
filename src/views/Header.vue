@@ -92,7 +92,7 @@ export default {
       localStorage.setItem("admin", false);
       localStorage.setItem("logged", false);
       localStorage.setItem("adminName", "");
-      localStorage.setItem("adminuid", "");
+      localStorage.setItem("uid", "");
       localStorage.setItem("store", null);
 
       const auth = getAuth();

@@ -18,11 +18,11 @@
             v-model="producto.nombre"
           />
           <div
-            v-if="this.formErrors.nombre"
+            v-if="this.formErrors[0].value"
             class="alert alert-danger py-1 mt-2"
             role="alert"
           >
-            Campo requerido
+            Se necesita un nombre para el producto
           </div>
         </div>
       </div>
@@ -41,11 +41,11 @@
             v-model="producto.precio"
           />
           <div
-            v-if="this.formErrors.precio"
+            v-if="this.formErrors[1].value"
             class="alert alert-danger py-1 mt-2"
             role="alert"
           >
-            Campo requerido
+            El producto debe tener un precio
           </div>
         </div>
       </div>
@@ -68,6 +68,13 @@
             >{{ categoria.nombre }}</option
           >
         </select>
+        <div
+          v-if="this.formErrors[2].value"
+          class="alert alert-danger py-1 mt-2"
+          role="alert"
+        >
+          Seleccione una categoria para el producto
+        </div>
       </div>
 
       <div class="col-12 col-md-6">
@@ -83,6 +90,13 @@
             placeholder="Indique las unidades disponibles"
             v-model="producto.stock"
           />
+          <div
+            v-if="this.formErrors[3].value"
+            class="alert alert-danger py-1 mt-2"
+            role="alert"
+          >
+            Indique de cuántas unidades dispone
+          </div>
         </div>
       </div>
 
@@ -99,6 +113,13 @@
             placeholder="Introduzca una descripción del producto"
             v-model="producto.descripcion"
           ></textarea>
+          <div
+            v-if="this.formErrors[4].value"
+            class="alert alert-danger py-1 mt-2"
+            role="alert"
+          >
+            Escriba una descripción de este producto
+          </div>
         </div>
       </div>
 
@@ -130,6 +151,13 @@
                 class="form-control-file"
                 id="imagen"
               />
+              <div
+                v-if="this.formErrors[5].value"
+                class="alert alert-danger py-1 mt-2"
+                role="alert"
+              >
+                Añada una imagen del producto
+              </div>
             </div>
           </div>
           <div class="col-12 col-md-8 d-flex justify-content-center">
@@ -155,7 +183,7 @@
       </div>
       <div class="col-12 col-md-4 mt-4" v-if="this.productoId">
         <div
-          v-if="this.$route.params.id"
+          v-if="this.productoId"
           @click="borrarProdById()"
           class="col-12 btn btn-outline-danger"
         >
@@ -167,7 +195,7 @@
 </template>
 
 <script>
-import { ref, onValue, push } from "firebase/database";
+import { ref, onValue, push, remove, set } from "firebase/database";
 import { database, app } from "../Firebase";
 import * as storage from "firebase/storage";
 
@@ -195,7 +223,14 @@ export default {
         idAdmin: "",
       },
 
-      formErrors: [{ nombre: false }, { precio: false }],
+      formErrors: [
+        { nombre: { value: false } },
+        { precio: { value: false } },
+        { categoria: { value: false } },
+        { unidades: { value: false } },
+        { descripcion: { value: false } },
+        { imagen: { value: false } },
+      ],
       imagenMiniatura: "",
 
       imagen: "",
@@ -219,23 +254,37 @@ export default {
     },
 
     async addProd() {
-      const imageRef = storage.ref(
-        store,
-        `images/imagesProd/${this.imagen.name}`
-      );
-      await storage.uploadBytes(imageRef, this.imagen);
-      const urlDescarga = await storage.getDownloadURL(imageRef);
-      this.urlDescarga = urlDescarga;
+      if (!this.productoId) {
+        const imageRef = storage.ref(
+          store,
+          `images/imagesProd/${this.imagen.name}`
+        );
+        await storage.uploadBytes(imageRef, this.imagen);
+        const urlDescarga = await storage.getDownloadURL(imageRef);
+        this.urlDescarga = urlDescarga;
 
-      await push(ref(database, "productos/"), {
-        nombre: this.producto.nombre,
-        descripcion: this.producto.descripcion,
-        categoria: this.producto.categoria,
-        precio: this.producto.precio,
-        stock: this.producto.stock,
-        urlImagen: this.urlDescarga,
-        idTienda: localStorage.getItem("adminuid"),
-      });
+        await push(ref(database, "productos/"), {
+          nombre: this.producto.nombre,
+          descripcion: this.producto.descripcion,
+          categoria: this.producto.categoria,
+          precio: this.producto.precio,
+          stock: this.producto.stock,
+          urlImagen: this.urlDescarga,
+          idTienda: localStorage.getItem("uid"),
+        });
+      } else {
+        set(ref(database, "productos/" + this.productoId), {
+          nombre: this.producto.nombre,
+          descripcion: this.producto.descripcion,
+          categoria: this.producto.categoria,
+          precio: this.producto.precio,
+          stock: this.producto.stock,
+          urlImagen: this.imagenMiniatura,
+          idTienda: localStorage.getItem("uid"),
+        });
+      }
+
+      this.$router.push("/adminprods");
     },
 
     obtenerImagen(e) {
@@ -285,23 +334,29 @@ export default {
       this.$router.push("/adminprods");
     },
 
-    pressed() {
-      this.addProd();
-    },
-
     getFormValues(values) {
       this.formErrors = [
         { nombre: { value: false } },
         { precio: { value: false } },
-        // ...
+        { categoria: { value: false } },
+        { unidades: { value: false } },
+        { descripcion: { value: false } },
+        { imagen: { value: false } },
       ];
       const nombre = values.target.elements.nombre.value;
       const precio = values.target.elements.precio.value;
-      // TODO declarar todas las variables del formulario
+      const categoria = values.target.elements.selectCategoria.value;
+      const unidades = values.target.elements.stock.value;
+      const descripcion = values.target.elements.descripcion.value;
+      const imagen = this.imagenMiniatura;
+
       const allValues = {
         nombre,
         precio,
-        // ...
+        categoria,
+        unidades,
+        descripcion,
+        imagen,
       };
       const errors = this.validateForm(allValues);
       if (errors.find((validacion) => !!validacion.value)) return;
@@ -309,9 +364,20 @@ export default {
     },
 
     validateForm(allValues) {
-      const { nombre, precio } = allValues;
-      if (nombre == "") this.formErrors.nombre.value = true;
-      // igual con todos
+      const {
+        nombre,
+        precio,
+        categoria,
+        unidades,
+        descripcion,
+        imagen,
+      } = allValues;
+      if (nombre == "") this.formErrors[0].value = true;
+      if (precio == "") this.formErrors[1].value = true;
+      if (categoria == "") this.formErrors[2].value = true;
+      if (unidades == "") this.formErrors[3].value = true;
+      if (descripcion == "") this.formErrors[4].value = true;
+      if (imagen == "") this.formErrors[5].value = true;
 
       return this.formErrors;
     },
