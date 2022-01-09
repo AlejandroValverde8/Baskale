@@ -1,5 +1,5 @@
 <template>
-  <div class="modal" tabindex="-1" ref="mod" id="mod">
+  <cute-modal name="mod" class="custom-modal" id="mod">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -7,39 +7,44 @@
           <button
             type="button"
             class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close"
+            @click="cerrarModal()"
           ></button>
         </div>
         <div class="modal-body">
           <p>{{ texto }}</p>
         </div>
-        {{ acciones }}
+        <div class="modal-footer" v-html="acciones"></div>
       </div>
     </div>
-  </div>
+  </cute-modal>
 </template>
 <script>
-import { Modal } from "bootstrap";
-
 export default {
   name: "MyModal",
   props: ["titulo", "texto", "acciones"],
-  data() {
-    return {
-      modal: null,
-    };
-  },
-
   methods: {
-    mostrar() {
-      this.modal.show();
+    cerrarModal() {
+      this.$cuteModal.hide("mod");
     },
-  },
-
-  mounted() {
-    this.modal = new Modal(this.$refs.mod);
-    console.log(this.modal);
   },
 };
 </script>
+<style>
+.custom-modal {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.7);
+  top: 0;
+  left: 0;
+  z-index: 1055;
+  width: 100%;
+  height: 100%;
+}
+.cute-modal {
+  height: 100%;
+  width: 100%;
+  top: 50%;
+  left: 50%;
+  position: fixed;
+  transform: translate(-20%, -20%);
+}
+</style>

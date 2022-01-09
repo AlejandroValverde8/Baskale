@@ -73,7 +73,6 @@ import { ref, onValue } from "firebase/database";
 import { database } from "../../Firebase";
 import Carrito from "../Carrito";
 import MyModal from "../../components/Modal.vue";
-import { methods } from "../../components/Modal.vue";
 
 export default {
   components: {
@@ -95,7 +94,6 @@ export default {
       ],
       buscar: "",
       admin: false,
-      modal: MyModal.data.modal,
     };
   },
 
@@ -147,6 +145,10 @@ export default {
       localStorage.setItem("store", JSON.stringify(this.productosCarrito));
     },
 
+    comprar() {
+      this.$cuteModal.open("mod");
+    },
+
     quitarProducto(producto) {
       this.productosCarrito = this.productosCarrito.filter(
         (item) => item.id != producto.id
@@ -167,13 +169,9 @@ export default {
       }
     },
 
-    comprar() {
-      methods.mostrar();
-    },
-
     accionesModal() {
       return (
-        <div class="modal-footer">
+        <div>
           <button
             type="button"
             class="btn btn-secondary"
