@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    <toast v-if="showToast" :texto="toast.texto" :estado="toast.estado" />
     <h3 class="mb-4">
       {{ this.productoId ? "Editar producto" : "Añadir producto" }}
     </h3>
@@ -198,10 +199,14 @@
 import { ref, onValue, push, remove, set } from "firebase/database";
 import { database, app } from "../Firebase";
 import * as storage from "firebase/storage";
+import Toast from "../components/Toast.vue";
 
 const store = storage.getStorage(app);
 
 export default {
+  components: {
+    Toast,
+  },
   data() {
     return {
       categoria: {
@@ -236,6 +241,12 @@ export default {
       imagen: "",
 
       productoId: "",
+
+      showToast: false,
+      toast: {
+        texto: "",
+        estado: "",
+      },
     };
   },
 
@@ -254,37 +265,50 @@ export default {
     },
 
     async addProd() {
-      if (!this.productoId) {
-        const imageRef = storage.ref(
-          store,
-          `images/imagesProd/${this.imagen.name}`
-        );
-        await storage.uploadBytes(imageRef, this.imagen);
-        const urlDescarga = await storage.getDownloadURL(imageRef);
-        this.urlDescarga = urlDescarga;
+      try {
+        if (!this.productoId) {
+          const imageRef = storage.ref(
+            store,
+            `images/imagesProd/${this.imagen.name}`
+          );
+          await storage.uploadBytes(imageRef, this.imagen);
+          const urlDescarga = await storage.getDownloadURL(imageRef);
+          this.urlDescarga = urlDescarga;
 
-        await push(ref(database, "productos/"), {
-          nombre: this.producto.nombre,
-          descripcion: this.producto.descripcion,
-          categoria: this.producto.categoria,
-          precio: this.producto.precio,
-          stock: this.producto.stock,
-          urlImagen: this.urlDescarga,
-          idTienda: localStorage.getItem("uid"),
-        });
-      } else {
-        set(ref(database, "productos/" + this.productoId), {
-          nombre: this.producto.nombre,
-          descripcion: this.producto.descripcion,
-          categoria: this.producto.categoria,
-          precio: this.producto.precio,
-          stock: this.producto.stock,
-          urlImagen: this.imagenMiniatura,
-          idTienda: localStorage.getItem("uid"),
-        });
+          await push(ref(database, "productos/"), {
+            nombre: this.producto.nombre,
+            descripcion: this.producto.descripcion,
+            categoria: this.producto.categoria,
+            precio: this.producto.precio,
+            stock: this.producto.stock,
+            urlImagen: this.urlDescarga,
+            idTienda: localStorage.getItem("uid"),
+          });
+          this.$router.push("/adminprods");
+        } else {
+          await set(ref(database, "productos/" + this.productoId), {
+            nombre: this.producto.nombre,
+            descripcion: this.producto.descripcion,
+            categoria: this.producto.categoria,
+            precio: this.producto.precio,
+            stock: this.producto.stock,
+            urlImagen: this.imagenMiniatura,
+            idTienda: localStorage.getItem("uid"),
+          });
+        }
+        this.toast = {
+          texto: "El producto se ha guardado correctamente",
+          estado: "success",
+        };
+        this.showToast = true;
+      } catch (err) {
+        console.log(err);
+        this.toast = {
+          texto: "Se ha producido un error al guardar el producto",
+          estado: "danger",
+        };
+        this.showToast = true;
       }
-
-      this.$router.push("/adminprods");
     },
 
     obtenerImagen(e) {
@@ -360,7 +384,10 @@ export default {
       };
       const errors = this.validateForm(allValues);
       if (errors.find((validacion) => !!validacion.value)) return;
-      else this.addProd();
+      else {
+        this.showToast = false;
+        this.addProd();
+      }
     },
 
     validateForm(allValues) {

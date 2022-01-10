@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    <toast v-if="showToast" :texto="toast.texto" :estado="toast.estado" />
     <div class="row">
       <div :class="!this.admin ? 'col-md-8 col-12' : 'col-12'">
         <h3 class="mb-4">Productos</h3>
@@ -57,28 +58,32 @@
           :prodCarrito="productosCarrito"
           :arrIdCan="arrIdCantidad"
           v-on:quitarProducto="quitarProducto"
-          v-on:comprar="comprar"
           v-on:devolverTotal="recogerTotal"
+          v-on:comprar="comprar"
         ></Carrito>
       </div>
     </div>
     <MyModal
       :titulo="`Su compra`"
-      :texto="`Productos`"
-      :acciones="botonesModal"
+      :texto="productosCarrito"
+      :accion="`Realizar Compra`"
+      :total="total"
+      v-on:recogerAccion="recogerAccion"
     />
   </div>
 </template>
 <script>
-import { ref, onValue } from "firebase/database";
+import { ref, onValue, push } from "firebase/database";
 import { database } from "../../Firebase";
 import Carrito from "../Carrito";
 import MyModal from "../../components/Modal.vue";
+import Toast from "../../components/Toast.vue";
 
 export default {
   components: {
     Carrito,
     MyModal,
+    Toast,
   },
 
   data() {
@@ -96,7 +101,11 @@ export default {
       buscar: "",
       admin: false,
       total: "",
-      botonesModal: `<div><button type='button' class='btn btn-secondary' @click=${this.cerrarModal()}>Close</button><button type='button' class='btn btn-primary ms-3'>Save changes</button></div>`,
+      toast: {
+        texto: "",
+        estado: "",
+      },
+      showToast: false,
     };
   },
 
@@ -150,11 +159,8 @@ export default {
     },
 
     comprar() {
-      this.$cuteModal.open("mod");
-    },
-
-    cerrarModal() {
-      this.$cuteModal.hide("mod");
+      if (!localStorage.getItem("uid")) this.$router.push("/login");
+      else this.$cuteModal.open("mod");
     },
 
     quitarProducto(producto) {
@@ -178,20 +184,41 @@ export default {
     },
     recogerTotal(cuenta) {
       this.total = cuenta;
-      console.log(cuenta);
     },
     async guardarCompra() {
-      let arrayIds;
-
-      productosCarrito.forEach((element) => {
-        arrayIds = element.idTienda;
+      const arrayProdCompra = [];
+      this.productosCarrito.forEach((element, index) => {
+        arrayProdCompra[index] = element.nombre;
       });
+      try {
+        await push(ref(database, "compras/"), {
+          idTienda: this.productosCarrito[0].idTienda,
+          idUsuario: localStorage.getItem("uid"),
+          detalle: arrayProdCompra,
+          cantidadTotal: this.total,
+        });
+        this.toast = {
+          texto: "Su compra se ha efectuado con éxito",
+          estado: "success",
+        };
+        this.productosCarrito = [];
+        localStorage.setItem("store", JSON.stringify(this.productosCarrito));
+        this.$cuteModal.hide("mod");
+        this.showToast = true;
+      } catch (err) {
+        console.log(err);
+        this.toast = {
+          texto: "Error al efectuar su compra",
+          estado: "danger",
+        };
+        this.$cuteModal.hide("mod");
+        this.showToast = true;
+      }
+    },
 
-      await push(ref(database, "compras/"), {
-        idsTienda: this.compra.idTienda,
-        idUsuario: localStorage.getItem("uid"),
-        cantidadTotal: this.total,
-      });
+    recogerAccion() {
+      this.showToast = false;
+      this.guardarCompra();
     },
   },
 };

@@ -14,7 +14,8 @@
             <span class="badge bg-primary me-2">{{
               producto.cantidadCarrito
             }}</span
-            >{{ producto.nombre }} - {{ producto.precio }} €
+            >{{ producto.nombre }} -
+            {{ producto.precio * producto.cantidadCarrito }} €
           </div>
           <div class="col-2 d-flex justify-content-end">
             <div

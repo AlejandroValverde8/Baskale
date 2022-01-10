@@ -40,6 +40,6 @@ export default {
 .toast {
   position: absolute;
   top: 100px;
-  right: 30px;
+  left: 30px;
 }
 </style>

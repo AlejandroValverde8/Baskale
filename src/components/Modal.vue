@@ -11,9 +11,35 @@
           ></button>
         </div>
         <div class="modal-body">
-          <p>{{ texto }}</p>
+          <div id="compra" v-if="accion == `Realizar Compra`">
+            <ul class="list-group list-group-flush">
+              <li
+                class="list-group-item"
+                v-for="producto in texto"
+                :key="producto.id"
+              >
+                {{ producto.cantidadCarrito }}x {{ producto.nombre }} -
+                {{ producto.precio * producto.cantidadCarrito }} €
+              </li>
+              <li class="list-group-item"><b>TOTAL: </b>{{ total }} €</li>
+            </ul>
+          </div>
         </div>
-        <div class="modal-footer" v-html="acciones"></div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            @click="cerrarModal()"
+          >
+            Cerrar</button
+          ><button
+            type="button"
+            class="btn btn-primary ms-3"
+            @click="recogerAccion()"
+          >
+            {{ accion }}
+          </button>
+        </div>
       </div>
     </div>
   </cute-modal>
@@ -21,10 +47,14 @@
 <script>
 export default {
   name: "MyModal",
-  props: ["titulo", "texto", "acciones"],
+  props: ["titulo", "texto", "accion", "total"],
   methods: {
     cerrarModal() {
       this.$cuteModal.hide("mod");
+    },
+
+    recogerAccion() {
+      this.$emit("recogerAccion");
     },
   },
 };
